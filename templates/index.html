@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Chap</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Helvetica Neue', sans-serif;
+            display: flex;
+            height: 100vh;
+            color: #333;
+            transition: background-color 0.5s ease;
+            overflow: hidden;
+        }
+
+        /* --- LEFT SIDE: THE GHOST MANNEQUIN --- */
+        .outfit-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .clothing-item {
+            background: rgba(255,255,255,0.25);
+            border: 2px dashed rgba(255,255,255,0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            backdrop-filter: blur(4px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+            gap: 4px;
+        }
+        .clothing-item .clothing-thumb {
+            width: 40px; height: 40px; object-fit: cover; border-radius: 4px;
+        }
+
+        /* 1. HEAD */
+        .zone-head {
+            width: 100px;
+            height: 80px;
+            border-radius: 50% 50% 10px 10px;
+            margin-bottom: 20px;
+            z-index: 10;
+        }
+
+        /* 2. TORSO */
+        .zone-torso {
+            position: relative;
+            width: 240px;
+            height: 260px;
+            display: flex;
+            justify-content: center;
+            margin-bottom: -15px;
+            z-index: 8;
+        }
+        .layer-shirt {
+            position: absolute;
+            width: 90%;
+            height: 95%;
+            top: 5%;
+            background-color: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            z-index: 1;
+        }
+        .layer-coat {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 15px 15px 10px 10px;
+            z-index: 2;
+        }
+
+        /* 3. LEGS */
+        .zone-legs {
+            width: 160px;
+            height: 280px;
+            border-radius: 5px;
+            z-index: 5;
+            margin-bottom: 5px; /* Small gap for socks */
+        }
+
+        /* 4. ANKLES (The Socks Zone) */
+        .zone-ankles {
+            width: 140px;
+            height: 40px;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+            z-index: 4;
+            margin-bottom: 5px;
+        }
+        .sock {
+            width: 50px;
+            height: 100%;
+            border-radius: 5px;
+            font-size: 0.8rem;
+        }
+
+        /* 5. FEET */
+        .zone-feet {
+            width: 200px;
+            height: 80px;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+        }
+        .foot { width: 80px; height: 100%; border-radius: 10px 10px 20px 5px; }
+
+        /* --- HOVER EFFECTS --- */
+        .outfit-container:hover .zone-head { transform: translateY(-40px) scale(1.1); }
+        .outfit-container:hover .layer-coat { transform: translateX(90px) rotate(10deg); opacity: 0.9; }
+        .outfit-container:hover .layer-shirt { transform: translateX(-90px) rotate(-5deg); opacity: 1; }
+        .outfit-container:hover .zone-legs { transform: translateY(20px); }
+        /* Socks and Shoes drop together */
+        .outfit-container:hover .zone-ankles { transform: translateY(30px); }
+        .outfit-container:hover .zone-feet { transform: translateY(40px) rotate(-3deg); }
+
+
+        /* --- RIGHT SIDE --- */
+        .info-container {
+            flex: 0.8;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+        }
+        h1 { font-size: 6rem; margin: 0; letter-spacing: -3px; line-height: 0.9; }
+        h2 { font-size: 1.4rem; color: #666; margin-top: 10px; font-weight: 400; }
+        .outfit-checklist {
+            font-size: 1rem; color: #444; margin-top: 20px; font-weight: 600;
+            max-width: 400px; line-height: 1.5;
+        }
+        .refresh-btn {
+            padding: 6px 10px; font-size: 1.2rem; border: 1px solid #ccc;
+            background: #f5f5f5; cursor: pointer; border-radius: 4px;
+        }
+        body.dark-mode .refresh-btn { background: #444; border-color: #555; color: #ddd; }
+        .app-title {
+            position: absolute;
+            top: 40px; left: 60px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold; letter-spacing: 2px; opacity: 0.6;
+            border-bottom: 2px solid #333; padding-bottom: 5px;
+        }
+        .header-controls {
+            position: absolute; top: 40px; right: 60px;
+            display: flex; gap: 12px; align-items: center;
+        }
+        .theme-toggle {
+            display: flex; gap: 6px; align-items: center;
+        }
+        .theme-toggle button {
+            padding: 4px 10px; font-size: 0.75rem; border: 1px solid #ccc;
+            background: #f5f5f5; cursor: pointer; border-radius: 4px;
+        }
+        .theme-toggle button.active {
+            background: #333; color: #fff; border-color: #333;
+        }
+        .advice-text { font-size: 1.4rem; font-weight: 600; color: #444; margin-top: 16px; line-height: 1.3; max-width: 400px; }
+
+        /* Dark / Morning Mode */
+        body.dark-mode .info-container {
+            background: rgba(30, 30, 35, 0.95);
+            color: #e0e0e0;
+        }
+        body.dark-mode h1, body.dark-mode h2 { color: #fff; }
+        body.dark-mode h2 { color: #b0b0b0; }
+        body.dark-mode .outfit-checklist { color: #d0d0d0; }
+        body.dark-mode .advice-text { color: #fff; }
+        body.dark-mode .stat { border-left-color: #555; }
+        body.dark-mode .stat strong { color: #fff; }
+        body.dark-mode .stat small { color: #888; }
+        body.dark-mode .app-title { border-bottom-color: #888; color: #aaa; }
+        body.dark-mode #location-status { color: #888; }
+        body.dark-mode .theme-toggle button { background: #444; border-color: #555; color: #ddd; }
+        body.dark-mode .theme-toggle button.active { background: #fff; color: #222; border-color: #fff; }
+        .stat-box { display: flex; gap: 30px; margin-top: 50px; }
+        .stat { border-left: 3px solid #ccc; padding-left: 15px; }
+        .stat strong { font-size: 1.5rem; display: block; margin-top: 5px;}
+        .stat small { text-transform: uppercase; font-size: 0.7rem; color: #888; }
+        
+        #location-status {
+            position: absolute; bottom: 20px; right: 60px; font-size: 0.8rem; color: #888;
+        }
+    </style>
+</head>
+<body class="{% if theme == 'dark' %}dark-mode{% endif %}" style="background-color: {{ advice.color_theme }};">
+
+    <div class="outfit-container">
+        
+        {% if advice.hat != "None" %}
+            <div class="clothing-item zone-head">
+                {% if advice.hat_image %}<img src="{{ url_for('static', filename='wardrobe/' + advice.hat_image) }}" alt="" class="clothing-thumb">{% endif %}
+                <span>{{ advice.hat_label or advice.hat }}</span>
+            </div>
+        {% endif %}
+
+        <div class="zone-torso">
+            <div class="clothing-item layer-shirt">
+                {% if advice.layer_image %}<img src="{{ url_for('static', filename='wardrobe/' + advice.layer_image) }}" alt="" class="clothing-thumb">{% endif %}
+                <span>{{ advice.layer_label or advice.layer }}</span>
+            </div>
+            {% if advice.coat != "None" %}
+                <div class="clothing-item layer-coat">
+                    {% if advice.coat_image %}<img src="{{ url_for('static', filename='wardrobe/' + advice.coat_image) }}" alt="" class="clothing-thumb">{% endif %}
+                    <span>{{ advice.coat_label or advice.coat }}</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="clothing-item zone-legs">
+            {% if advice.pants_image %}<img src="{{ url_for('static', filename='wardrobe/' + advice.pants_image) }}" alt="" class="clothing-thumb">{% endif %}
+            <span>{{ advice.pants_label or advice.pants }}</span>
+        </div>
+
+        <div class="zone-ankles">
+            <div class="clothing-item sock">{{ advice.socks }}</div>
+            <div class="clothing-item sock">{{ advice.socks }}</div>
+        </div>
+
+        <div class="zone-feet">
+            <div class="clothing-item foot">
+                {% if advice.shoes_image %}<img src="{{ url_for('static', filename='wardrobe/' + advice.shoes_image) }}" alt="" class="clothing-thumb">{% endif %}
+                <span>{{ advice.shoes_label or advice.shoes }}</span>
+            </div>
+            <div class="clothing-item foot">
+                {% if advice.shoes_image %}<img src="{{ url_for('static', filename='wardrobe/' + advice.shoes_image) }}" alt="" class="clothing-thumb">{% endif %}
+                <span>{{ advice.shoes_label or advice.shoes }}</span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="info-container">
+        <div class="header-controls">
+            <div class="theme-toggle">
+                <button id="theme-light" class="{% if theme != 'dark' %}active{% endif %}">Light</button>
+                <button id="theme-dark" class="{% if theme == 'dark' %}active{% endif %}">Morning</button>
+            </div>
+            <button id="refresh-btn" class="refresh-btn" title="Refresh">↻</button>
+        </div>
+        <div class="app-title">Weather Chap</div>
+        
+        <h1>{{ weather.current_temp|round|int }}°</h1>
+        <h2>H:{{ weather.temp_max|round|int }}° &nbsp;|&nbsp; L:{{ weather.temp_min|round|int }}°</h2>
+
+        <div class="outfit-checklist">{{ advice.outfit_oneliner }}</div>
+
+        <div class="advice-text">{{ advice.text }}</div>
+
+        <div class="stat-box">
+            <div class="stat">
+                <small>Rain Chance</small>
+                <strong>{{ weather.precip_prob }}%</strong>
+            </div>
+            <div class="stat">
+                <small>Feels Like</small>
+                <strong>{{ weather.feels_like|round|int }}°</strong> </div>
+        </div>
+        
+        <div id="location-status">
+            {% if location_label == 'Provo (Default)' %}
+                📍 Waiting for GPS...
+            {% else %}
+                📍 Precise location active: {{ location_label }}
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const hasLat = urlParams.has('lat');
+        const lat = urlParams.get('lat') || '';
+        const lon = urlParams.get('lon') || '';
+        const locParams = (lat && lon) ? `lat=${lat}&lon=${lon}` : '';
+
+        if (!hasLat) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    const theme = localStorage.getItem('weatherchap_theme') || 'light';
+                    document.getElementById('location-status').innerText = "📍 Found you! Reloading...";
+                    window.location.href = `/?lat=${lat}&lon=${lon}&theme=${theme}`;
+                }, function(error) {
+                    document.getElementById('location-status').innerText = "📍 GPS Denied. Using Default.";
+                });
+            }
+        }
+
+        function buildUrl(extra) {
+            const parts = [];
+            if (lat && lon) parts.push('lat=' + lat + '&lon=' + lon);
+            const theme = urlParams.get('theme') || localStorage.getItem('weatherchap_theme') || 'light';
+            if (extra.theme) parts.push('theme=' + extra.theme);
+            else if (theme) parts.push('theme=' + theme);
+            return '/?' + parts.join('&');
+        }
+        document.getElementById('theme-light').addEventListener('click', function() {
+            localStorage.setItem('weatherchap_theme', 'light');
+            window.location.href = buildUrl({ theme: 'light' });
+        });
+        document.getElementById('theme-dark').addEventListener('click', function() {
+            localStorage.setItem('weatherchap_theme', 'dark');
+            window.location.href = buildUrl({ theme: 'dark' });
+        });
+
+        document.getElementById('refresh-btn').addEventListener('click', function() {
+            window.location.reload();
+        });
+    </script>
+
+</body>
+</html>

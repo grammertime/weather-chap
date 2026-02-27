@@ -1,0 +1,52 @@
+{
+  "hat": {
+    "Beanie": {
+      "label": "My black beanie",
+      "image": null
+    }
+  },
+  "coat": {
+    "Rain Shell": {
+      "label": "Columbia rain shell",
+      "image": null
+    },
+    "Pack Shell": {
+      "label": "Packable rain jacket",
+      "image": null
+    },
+    "Brown Wool Coat": {
+      "label": "Brown jacket",
+      "image": null
+    }
+  },
+  "layer": {
+    "Flannel": {
+      "label": "Blue flannel",
+      "image": null
+    },
+    "Hoodie": {
+      "label": "Black hoodie",
+      "image": null
+    },
+    "T-Shirt": {
+      "label": "T-shirt",
+      "image": null
+    }
+  },
+  "pants": {
+    "Chinos": {
+      "label": "Dickies work pants",
+      "image": null
+    }
+  },
+  "shoes": {
+    "Doc Martens": {
+      "label": "Docs",
+      "image": null
+    },
+    "Vans": {
+      "label": "Converse",
+      "image": null
+    }
+  }
+}

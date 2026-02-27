@@ -1,0 +1,9 @@
+services:
+  weather-chap:
+    container_name: weather-chap
+    build: .
+    ports:
+      - "5001:5001"
+    environment:
+      - FLASK_ENV=production
+    restart: unless-stopped
